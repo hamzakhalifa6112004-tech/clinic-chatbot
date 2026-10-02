@@ -1,0 +1,21 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "severe.js",
+  "scripts": {
+    "start": "node severe.js",
+    "dev": "node --watch severe.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "openai": "^7.25.0",
+    "pg": "^8.23.1"
+  }
+}
