@@ -53,7 +53,9 @@ function ChatApp() {
 }
 
 function App() {
-  return window.location.pathname === "/admin" ? <Admin /> : <ChatApp />;
+  const isAdmin =
+    window.location.pathname === "/admin" || window.location.hash === "#/admin";
+  return isAdmin ? <Admin /> : <ChatApp />;
 }
 
 export default App;
