@@ -1,16 +1,70 @@
-# React + Vite
+# Al-Noor Clinic Assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An Arabic/English clinic chatbot that answers patient questions, collects appointment requests, and gives clinic staff a dashboard to follow them up.
 
-Currently, two official plugins are available:
+**Live demo:** [your-vercel-link]
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![Chat](docs/chat.png)
 
-## React Compiler
+## What it does
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Answers FAQs (hours, address, services, prices) in the patient's language.
+- Collects appointment requests one detail at a time (name, phone, preferred time, reason), shows a summary, and saves the request after the patient confirms.
+- Refuses to diagnose or recommend medication, and redirects emergencies to emergency services.
+- Quick-reply buttons that answer common questions instantly without calling the AI.
+- Staff dashboard to review requests and track their status (new, contacted, confirmed, cancelled).
 
-## Expanding the ESLint configuration
+![Emergency handling](docs/emergency.png)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech stack
+
+- **Frontend:** React, Vite, CSS (RTL-aware, Arabic typography)
+- **Backend:** Node.js, Express
+- **Database:** PostgreSQL (Neon)
+- **AI:** Gemini through an OpenAI-compatible API, using function calling
+- **Hosting:** Vercel
+
+## Design decisions
+
+- **API key stays on the server.** The browser only talks to `/api/chat`; the system prompt and keys are never exposed.
+- **The AI cannot confirm appointments.** After the patient confirms the summary, the model calls a `create_booking` function; the server saves the request and replies with a fixed message saying the clinic will call to confirm. This prevents the model from promising times it cannot know.
+- **Safety rules in the system prompt:** no diagnosis, no medication advice, emergency redirect, no guessing missing information.
+- **Input validation and rate limiting** on the chat and admin endpoints; only `user` and `assistant` roles are accepted from the client.
+- **Admin endpoints protected** by a secret key sent in a request header; SQL queries are parameterized.
+
+![Admin dashboard](docs/admin.png)
+
+## Run locally
+
+```bash
+git clone [your-repo-link]
+cd clinic-chatbot
+npm install
+```
+
+Create `server/.env`:
+
+```
+OPENAI_API_KEY=your-key
+OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+OPENAI_MODEL=your-model-name
+DATABASE_URL=your-postgres-connection-string
+ADMIN_KEY=a-long-random-string
+```
+
+Then create the table and start both servers:
+
+```bash
+node server/setup-db.js
+npm run dev --prefix server
+npm run dev
+```
+
+The dashboard is at `/#/admin`.
+
+## Limitations
+
+- Demo project: use fake data only. Real patient data needs consent, encryption, and a compliant host.
+- The free AI tier has a small daily quota, so the bot may reply that it is busy.
+- The free hosting tier may be slow on the first request after idle time.
+- Single shared admin key; a real deployment would use proper user accounts.
