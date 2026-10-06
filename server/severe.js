@@ -40,7 +40,10 @@ const client = new OpenAI({
   baseURL: process.env.OPENAI_BASE_URL,
 });
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 3,
+});
 pool.on("error", (err) => console.error("Idle DB client error:", err.message));
 
 const UUID_RE =
@@ -236,6 +239,10 @@ if (fs.existsSync(distPath)) {
 }
 
 const port = process.env.PORT || 3001;
-app.listen(port, () =>
-  console.log(`Server running on http://localhost:${port}`),
-);
+if (!process.env.VERCEL) {
+  app.listen(port, () =>
+    console.log(`Server running on http://localhost:${port}`),
+  );
+}
+
+export default app;
